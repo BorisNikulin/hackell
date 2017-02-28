@@ -45,15 +45,18 @@ data Reg = RegA | RegM | RegD
 data Op = Add | Sub | And | Or
         deriving (Show)
 
---parse :: T.Text -> Either String Instruction
+parse :: T.Text -> Either String Instruction
 parse s = let s' = T.strip s
           in case T.uncons s' of
-                  Just ('@', num) -> case T.decimal num of
-                                          Right (num', t) -> if T.null t
-                                                               then if isATypeNumInRange num'
-                                                                      then Right (AType $ Left num')
-                                                                      else Left "Number in A Type Instruction exceeding 15 bits"
-                                                               else Left "Trailing non digit characters after A Type Instruction"
+                  Just ('@', a) -> case T.decimal a of
+                                        Right (num, t) -> if T.null t
+                                                            then if isATypeNumInRange num
+                                                                   then Right $ AType $ Left num
+                                                                   else Left "Number in A Type Instruction exceeding 15 bits"
+                                                            else Left "Trailing non digit characters after A Type Numeric Instruction"
+                                        Left _         -> if T.null a
+                                                            then Left "A Type command needs a symbol or a number"
+                                                            else Right $ AType $ Right a --symbol
 
 
 isATypeNumInRange num
