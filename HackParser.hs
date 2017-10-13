@@ -2,12 +2,19 @@ import qualified Data.Text as T
 import qualified Data.Text.Read as T
 import Data.Maybe
 
-type Symbol = T.Text
+import Text.Parsec
+import Text.Parsec.String
 
-data Instruction = AType (Either Int Symbol)
+type Symbol = String
+
+data Instruction = AType AVal
                  | CType (Maybe Dest) Comp (Maybe Jump)
                  | Macro [Instruction]
                  deriving (Show)
+
+data AVal = ANum    Int
+          | ASymbol Symbol
+          deriving (Show, Read)
 
 data Dest = A  | M  | D
           | AM | AD
@@ -35,6 +42,16 @@ data Reg = RegA | RegM | RegD
          
 data Op = Add | Sub | And | Or
         deriving (Show)
+
+--parseHackLine = parseAType
+
+parseAType :: Text.Parsec.String.Parser Instruction
+parseAType = do
+    char '@'
+    atInst <- AType <$> (ANum <$> read <$> many1 digit <|> ASymbol <$> (letter `combin many alphaNum))
+    spaces
+    endOfLine
+    return atInst
 
 --A Type numbers can only be 15 bits wide
 isATypeNumInRange num
