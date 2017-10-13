@@ -1,3 +1,5 @@
+module HackParser where
+
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
 import Data.Maybe
@@ -39,7 +41,7 @@ data Const = Zero | One | NegOne
 
 data Reg = RegA | RegM | RegD
          deriving (Show)
-         
+
 data Op = Add | Sub | And | Or
         deriving (Show)
 
@@ -48,7 +50,7 @@ data Op = Add | Sub | And | Or
 parseAType :: Text.Parsec.String.Parser Instruction
 parseAType = do
     char '@'
-    atInst <- AType <$> (ANum <$> read <$> many1 digit <|> ASymbol <$> (letter `combin many alphaNum))
+    atInst <- AType <$> (ANum <$> read <$> many1 digit <|> ASymbol <$> (letter `combine` many alphaNum))
     spaces
     endOfLine
     return atInst
